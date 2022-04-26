@@ -37,6 +37,8 @@
 #elif defined(__ARMEL__)
 #define ARCH_CPU_ARM_FAMILY 1
 #endif
+#elif defined(__aarch64__)
+#define ARCH_CPU_ARM64_FAMILY 1
 
 namespace leveldb {
 namespace port {
@@ -46,6 +48,13 @@ namespace port {
 #if defined(OS_WIN) && defined(COMPILER_MSVC) && defined(ARCH_CPU_X86_FAMILY)
 // windows.h already provides a MemoryBarrier(void) macro
 // http://msdn.microsoft.com/en-us/library/ms684208(v=vs.85).aspx
+#define LEVELDB_HAVE_MEMORY_BARRIER
+
+// ARM64
+#elif defined(ARCH_CPU_ARM64_FAMILY)
+inline void MemoryBarrier() {
+  asm volatile("dmb sy" : : : "memory");
+}
 #define LEVELDB_HAVE_MEMORY_BARRIER
 
 // Gcc on x86
@@ -147,6 +156,7 @@ class AtomicPointer {
 #undef LEVELDB_HAVE_MEMORY_BARRIER
 #undef ARCH_CPU_X86_FAMILY
 #undef ARCH_CPU_ARM_FAMILY
+#undef ARCH_CPU_ARM64_FAMILY
 
 }  // namespace port
 }  // namespace leveldb
